@@ -41,7 +41,7 @@ fun CalendarHorizontalToday(
         )
         Spacer(modifier = Modifier.size(8.dp))
         Icon(
-            modifier = modifier.size(20.dp),
+            modifier = Modifier.size(20.dp),
             imageVector = Icons.Default.Refresh,
             contentDescription = null,
             tint = Gray
