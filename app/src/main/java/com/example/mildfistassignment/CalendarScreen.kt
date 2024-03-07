@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.ui.theme.White
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import java.time.YearMonth
 import java.time.temporal.Temporal
@@ -74,6 +75,7 @@ fun CalendarScreen(
     )
     val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
 
+    var onClickedTodayButton by remember { mutableStateOf(false) }
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -106,28 +108,12 @@ fun CalendarScreen(
                         )
                     )
             ) {
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            detectHorizontalDragGestures { _, dragAmount ->
-                                if (dragAmount > 0) {
-
-                                } else {
-
-                                }
-                            }
-                        }
-                ) {
-
-                }
                 HorizontalPager(
                     state = pagerState,
                     pageCount = totalWeeks
                 ) {
                     LazyRow(
-                        modifier = modifier
-                            .fillMaxWidth(),
+                        modifier = modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         userScrollEnabled = false
@@ -135,7 +121,11 @@ fun CalendarScreen(
                         if (isExpanded) {
                             item {
                                 TodayButton(
-                                    modifier = modifier.weight(1f)
+                                    modifier = modifier.weight(1f),
+                                    onClickTodayButton = {
+                                        calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
+                                        onClickedTodayButton = true
+                                    }
                                 )
                             }
                         }
@@ -172,21 +162,34 @@ fun CalendarScreen(
     LaunchedEffect(key1 = pagerState) {
         var prevPage = pagerState.initialPage
         snapshotFlow { pagerState.currentPage }.collectLatest {
-            if (it < prevPage) {
-                calendarUiModel = dataSource.getData(
-                    startDate = calendarUiModel.startDate.date.minusDays(1),
-                    lastSelectedDate = calendarUiModel.selectedDate.date
-                )
-            } else if (it > prevPage) {
-                calendarUiModel = dataSource.getData(
-                    startDate = calendarUiModel.endDate.date.plusDays(2),
-                    lastSelectedDate = calendarUiModel.selectedDate.date
-                )
+            if (!onClickedTodayButton) {
+                Log.d("taag;;", ";;")
+                if (it < prevPage) {
+                    calendarUiModel = dataSource.getData(
+                        startDate = calendarUiModel.startDate.date.minusDays(1),
+                        lastSelectedDate = calendarUiModel.selectedDate.date
+                    )
+                } else if (it > prevPage) {
+                    calendarUiModel = dataSource.getData(
+                        startDate = calendarUiModel.endDate.date.plusDays(2),
+                        lastSelectedDate = calendarUiModel.selectedDate.date
+                    )
+                }
             }
             prevPage = it
         }
     }
 
+    LaunchedEffect(key1 = onClickedTodayButton) {
+        if (onClickedTodayButton) {
+            pagerState.animateScrollToPage(
+                page = selectedWeeks-1,
+                animationSpec = spring(stiffness = 1000f)
+            )
+
+            onClickedTodayButton = false
+        }
+    }
 }
 
 @Composable
