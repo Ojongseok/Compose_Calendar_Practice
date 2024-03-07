@@ -1,13 +1,9 @@
 package com.example.mildfistassignment
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
@@ -17,11 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
@@ -35,25 +28,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.mildfistassignment.component.DateListItem
+import com.example.mildfistassignment.component.HorizontalCalendar
+import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.ui.theme.White
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import java.time.YearMonth
-import java.time.temporal.Temporal
-import java.time.temporal.WeekFields
 import java.util.Calendar
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(
+    navController: NavController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -76,6 +69,7 @@ fun CalendarScreen(
     val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
 
     var onClickedTodayButton by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -108,48 +102,28 @@ fun CalendarScreen(
                         )
                     )
             ) {
-                HorizontalPager(
-                    state = pagerState,
-                    pageCount = totalWeeks
-                ) {
-                    LazyRow(
-                        modifier = modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        userScrollEnabled = false
-                    ) {
-                        if (isExpanded) {
-                            item {
-                                TodayButton(
-                                    modifier = modifier.weight(1f),
-                                    onClickTodayButton = {
-                                        calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
-                                        onClickedTodayButton = true
-                                    }
+                HorizontalCalendar(
+                    pagerState = pagerState,
+                    totalWeeks = totalWeeks,
+                    calendarUiModel = calendarUiModel,
+                    isExpanded = isExpanded,
+                    onClickDate = { clickedDate ->
+                        calendarUiModel = calendarUiModel.copy(
+                            selectedDate = clickedDate,
+                            visibleDates = calendarUiModel.visibleDates.map {
+                                it.copy(
+                                    isSelected = it.date.isEqual(clickedDate.date)
                                 )
                             }
-                        }
+                        )
+                    },
+                    onClickedTodayButton = {
+                        calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
+                        onClickedTodayButton = true
+                    },
+                    modifier = Modifier.weight(1f)
+                )
 
-                        items(calendarUiModel.visibleDates) { date ->
-                            HorizontalDateItem(
-                                modifier = modifier
-                                    .weight(1f),
-                                enableSelectedMonth = calendarUiModel.selectedDate.date.monthValue,
-                                date = date,
-                                onClickDate = { clickedDate ->
-                                    calendarUiModel = calendarUiModel.copy(
-                                        selectedDate = clickedDate,
-                                        visibleDates = calendarUiModel.visibleDates.map {
-                                            it.copy(
-                                                isSelected = it.date.isEqual(clickedDate.date)
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
                 Spacer(modifier = Modifier.size(24.dp))
 
                 if (isExpanded) {
@@ -163,7 +137,6 @@ fun CalendarScreen(
         var prevPage = pagerState.initialPage
         snapshotFlow { pagerState.currentPage }.collectLatest {
             if (!onClickedTodayButton) {
-                Log.d("taag;;", ";;")
                 if (it < prevPage) {
                     calendarUiModel = dataSource.getData(
                         startDate = calendarUiModel.startDate.date.minusDays(1),
@@ -186,7 +159,6 @@ fun CalendarScreen(
                 page = selectedWeeks-1,
                 animationSpec = spring(stiffness = 1000f)
             )
-
             onClickedTodayButton = false
         }
     }
@@ -206,7 +178,7 @@ fun DateTimeList(
         state = scrollState
     ) {
         items((0..23).toList()) { time ->
-            DateTimeItem(time)
+            DateListItem(time)
         }
     }
 

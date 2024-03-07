@@ -1,4 +1,4 @@
-package com.example.mildfistassignment
+package com.example.mildfistassignment.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable

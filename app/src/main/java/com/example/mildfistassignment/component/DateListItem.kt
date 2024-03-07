@@ -1,4 +1,4 @@
-package com.example.mildfistassignment
+package com.example.mildfistassignment.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.example.mildfistassignment.ui.theme.Gray
 
 @Composable
-fun DateTimeItem(
+fun DateListItem(
     time: Int,
     modifier: Modifier = Modifier
 ) {
@@ -53,6 +53,6 @@ fun DateTimeItem(
 
 @Preview(showBackground = true)
 @Composable
-fun DateTimeItemPreview() {
-    DateTimeItem(1)
+fun DateListItemPreview() {
+    DateListItem(1)
 }

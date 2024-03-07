@@ -3,22 +3,35 @@ package com.example.mildfistassignment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.ui.theme.MildfistAssignmentTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MildfistAssignmentTheme {
-                CalendarScreen()
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = Destination.CALENDAR.name
+                ) {
+                    composable(route = Destination.CALENDAR.name) {
+                        CalendarScreen(
+                            navController = navController
+                        )
+                    }
+
+                }
             }
         }
     }
+}
+
+enum class Destination(name: String) {
+    CALENDAR("calendar")
 }

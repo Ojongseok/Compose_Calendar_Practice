@@ -1,4 +1,4 @@
-package com.example.mildfistassignment
+package com.example.mildfistassignment.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +24,7 @@ import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
 
 @Composable
-fun HorizontalDateItem(
+fun HorizontalCalendarItem(
     modifier: Modifier = Modifier,
     enableSelectedMonth: Int,
     date: CalendarUiModel.Date,
@@ -70,6 +70,6 @@ fun HorizontalDateItem(
 
 @Preview(showBackground = true)
 @Composable
-fun HorizontalDateItemPreview() {
-//    HorizontalDateItem()
+fun HorizontalCalendarItemPreview() {
+//    HorizontalCalendarItem()
 }
