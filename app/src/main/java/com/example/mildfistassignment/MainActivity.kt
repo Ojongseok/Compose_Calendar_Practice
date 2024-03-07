@@ -28,6 +28,10 @@ class MainActivity : ComponentActivity() {
                     composable(route = Destination.CALENDAR_DETAIL.name) {
                         CalendarDetailScreen(navController = navController)
                     }
+
+                    composable(route = Destination.DATE.name) {
+                        DateScreen(navController = navController)
+                    }
                 }
             }
         }
@@ -36,5 +40,6 @@ class MainActivity : ComponentActivity() {
 
 enum class Destination(name: String) {
     CALENDAR("calendar"),
-    CALENDAR_DETAIL("calendarDetail")
+    CALENDAR_DETAIL("calendarDetail"),
+    DATE("date")
 }

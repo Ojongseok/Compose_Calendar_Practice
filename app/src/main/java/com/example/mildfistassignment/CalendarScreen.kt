@@ -75,8 +75,9 @@ fun CalendarScreen(
             .fillMaxSize(),
         topBar = {
             MainTopBar(
-                month = calendarUiModel.selectedDate.date.monthValue.toString(),
-                enableRightButton = true,
+                title = calendarUiModel.selectedDate.date.monthValue.toString().padStart(2,'0') + "월",
+                titleIcon = true,
+                enableExpandButton = true,
                 onClickExpandButton = {
                     isExpanded = !isExpanded
                 },

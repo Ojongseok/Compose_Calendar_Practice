@@ -29,12 +29,13 @@ import com.example.mildfistassignment.ui.theme.White
 
 @Composable
 fun MainTopBar(
-    month: String,
-    modifier: Modifier = Modifier,
-    onClickExpandButton: () -> Unit = {},
+    title: String,
+    titleIcon: Boolean = false,
+    enableExpandButton: Boolean = false,
     enableBackButton: Boolean = false,
-    enableRightButton: Boolean = false,
-    onClickBackButton: () -> Unit = {}
+    onClickExpandButton: () -> Unit = {},
+    onClickBackButton: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
@@ -61,20 +62,22 @@ fun MainTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = month.padStart(2,'0') + "월",
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
-            Icon(
-                modifier = modifier
-                    .size(20.dp),
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                tint = Gray
-            )
+            if (titleIcon) {
+                Icon(
+                    modifier = modifier
+                        .size(20.dp),
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = Gray
+                )
+            }
         }
-        if (enableRightButton) {
+        if (enableExpandButton) {
             Text(
                 modifier = modifier
                     .align(Alignment.CenterEnd)
@@ -95,8 +98,8 @@ fun MainTopBar(
 @Composable
 fun MainTopBarPreview() {
     Column {
-        MainTopBar(month = "3", enableBackButton = false)
+        MainTopBar(title = "3", enableBackButton = false)
         Spacer(modifier = Modifier.size(12.dp))
-        MainTopBar(month = "11", enableBackButton = true)
+        MainTopBar(title = "11", enableBackButton = true)
     }
 }

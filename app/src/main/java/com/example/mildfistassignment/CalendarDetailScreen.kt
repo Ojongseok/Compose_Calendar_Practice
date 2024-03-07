@@ -1,12 +1,9 @@
 package com.example.mildfistassignment
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,9 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,22 +24,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.DateDetailListItem
-import com.example.mildfistassignment.component.DateListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.model.CalendarDataSource
-import com.example.mildfistassignment.ui.theme.Gray
-import com.example.mildfistassignment.ui.theme.LightGray
-import com.example.mildfistassignment.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
-import java.util.Calendar
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -78,12 +66,13 @@ fun CalendarDetailScreen(
             .fillMaxSize(),
         topBar = {
             MainTopBar(
-                month = calendarUiModel.selectedDate.date.monthValue.toString(),
+                title = calendarUiModel.selectedDate.date.monthValue.toString().padStart(2,'0') + "월",
+                titleIcon = true,
                 enableBackButton = true,
                 onClickBackButton = {
                     navController.popBackStack()
                 },
-                enableRightButton = false
+                enableExpandButton = false
             )
         }
     ) { paddingValues ->
@@ -122,7 +111,11 @@ fun CalendarDetailScreen(
                     .background(color = Color(0x1AB9BCBE))
             )
 
-            DateDetailList()
+            DateDetailList(
+                navigateToDateScreen = {
+                    navController.navigate(Destination.DATE.name)
+                }
+            )
         }
     }
 
@@ -159,6 +152,7 @@ fun CalendarDetailScreen(
 
 @Composable
 fun DateDetailList(
+    navigateToDateScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -172,7 +166,7 @@ fun DateDetailList(
         items((0..23).toList()) { time ->
             DateDetailListItem(
                 time = time,
-                onClickDate = {}
+                onClickDate = navigateToDateScreen
             )
         }
     }

@@ -46,7 +46,6 @@ fun HorizontalCalendarItem(
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
                 .size(32.dp)
                 .background(
                     color = if (date.isSelected) Orange else Color.Transparent,
