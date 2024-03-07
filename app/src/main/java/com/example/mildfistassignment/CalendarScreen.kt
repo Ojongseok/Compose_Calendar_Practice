@@ -61,14 +61,27 @@ fun CalendarScreen(
     var calendarUiModel by remember {
         mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today))
     }
-    val pagerState = rememberPagerState(initialPage = 5)
 
-//    val weeks = getTotalNumberOfWeeks(
-//        month = YearMonth.of(
-//            calendarUiModel.selectedDate.date.year,
-//            calendarUiModel.selectedDate.date.month
-//        )
+    val selectedWeeks = getWeeksOfMonth(
+        calendarUiModel.selectedDate.date.year,
+        calendarUiModel.selectedDate.date.monthValue,
+        calendarUiModel.selectedDate.date.dayOfMonth
+    )
+    val totalWeeks = getWeeksOfMonth(
+        calendarUiModel.selectedDate.date.year,
+        calendarUiModel.selectedDate.date.monthValue,
+        calendarUiModel.selectedDate.date.month.maxLength()
+    )
+    val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
+    Log.d("taag selectedWeeks", selectedWeeks.toString())
+    Log.d("taag totalWeeks", totalWeeks.toString())
+
+//    val lastDay = getWeeksOfMonth(
+//        calendarUiModel.selectedDate.date.year,
+//        calendarUiModel.selectedDate.date.monthValue,
+//        calendarUiModel.selectedDate.date.month.maxLength()
 //    )
+//    Log.d("taag", lastDay.toString())
 
     Scaffold(
         modifier = modifier
@@ -119,7 +132,7 @@ fun CalendarScreen(
                 }
                 HorizontalPager(
                     state = pagerState,
-                    pageCount = 10
+                    pageCount = totalWeeks
                 ) {
                     LazyRow(
                         modifier = modifier
@@ -167,14 +180,12 @@ fun CalendarScreen(
     LaunchedEffect(key1 = pagerState) {
         var prevPage = pagerState.initialPage
         snapshotFlow { pagerState.currentPage }.collectLatest {
-            Log.d("taag p", prevPage.toString())
-            Log.d("taag c", it.toString())
             if (it < prevPage) {
                 calendarUiModel = dataSource.getData(
                     startDate = calendarUiModel.startDate.date.minusDays(1),
                     lastSelectedDate = calendarUiModel.selectedDate.date
                 )
-            } else {
+            } else if (it > prevPage) {
                 calendarUiModel = dataSource.getData(
                     startDate = calendarUiModel.endDate.date.plusDays(2),
                     lastSelectedDate = calendarUiModel.selectedDate.date
@@ -219,14 +230,14 @@ fun DateTimeList(
     }
 }
 
-fun getTotalNumberOfWeeks(
-    wf: WeekFields = WeekFields.SUNDAY_START,
-    month: Temporal
+fun getWeeksOfMonth(
+    year: Int,
+    month: Int,
+    day: Int
 ): Int {
-    val ym = YearMonth.from(month)
-    val firstWeekNumber = ym.atDay(1)[wf.weekOfMonth()]
-    val lastWeekNumber = ym.atEndOfMonth()[wf.weekOfMonth()]
-    return lastWeekNumber - firstWeekNumber + 1
+    val calendar = Calendar.getInstance()
+    calendar.set(year, month-1, day)
+    return calendar.get(Calendar.WEEK_OF_MONTH)
 }
 
 @Preview(showBackground = true)
