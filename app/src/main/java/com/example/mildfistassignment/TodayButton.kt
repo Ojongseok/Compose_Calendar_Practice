@@ -1,9 +1,7 @@
 package com.example.mildfistassignment
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,7 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.mildfistassignment.ui.theme.Gray
 
 @Composable
-fun CalendarHorizontalToday(
+fun TodayButton(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -51,6 +49,6 @@ fun CalendarHorizontalToday(
 
 @Preview(showBackground = true)
 @Composable
-fun CalendarHorizontalTodayPrewview() {
-    CalendarHorizontalToday()
+fun TodayButtonPreview() {
+    TodayButton()
 }

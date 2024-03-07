@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mildfistassignment"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    // BottomSheet
+//    implementation("com.holix.android:bottomsheetdialog-compose:1.3.2")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

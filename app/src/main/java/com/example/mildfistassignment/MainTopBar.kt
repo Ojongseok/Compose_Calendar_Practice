@@ -29,6 +29,7 @@ import com.example.mildfistassignment.ui.theme.White
 
 @Composable
 fun MainTopBar(
+    month: String,
     modifier: Modifier = Modifier,
     onClickExpandButton: () -> Unit = {},
     enableBackButton: Boolean = false,
@@ -59,7 +60,7 @@ fun MainTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "02월",
+                text = month.padStart(2,'0') + "월",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -91,8 +92,8 @@ fun MainTopBar(
 @Composable
 fun MainTopBarPreview() {
     Column {
-        MainTopBar(enableBackButton = false)
+        MainTopBar(month = "3", enableBackButton = false)
         Spacer(modifier = Modifier.size(12.dp))
-        MainTopBar(enableBackButton = true)
+        MainTopBar(month = "11", enableBackButton = true)
     }
 }
