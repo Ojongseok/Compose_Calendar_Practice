@@ -16,16 +16,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             MildfistAssignmentTheme {
                 val navController = rememberNavController()
+
                 NavHost(
                     navController = navController,
                     startDestination = Destination.CALENDAR.name
                 ) {
                     composable(route = Destination.CALENDAR.name) {
-                        CalendarScreen(
-                            navController = navController
-                        )
+                        CalendarScreen(navController = navController)
                     }
 
+                    composable(route = Destination.CALENDAR_DETAIL.name) {
+                        CalendarDetailScreen(navController = navController)
+                    }
                 }
             }
         }
@@ -33,5 +35,6 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class Destination(name: String) {
-    CALENDAR("calendar")
+    CALENDAR("calendar"),
+    CALENDAR_DETAIL("calendarDetail")
 }

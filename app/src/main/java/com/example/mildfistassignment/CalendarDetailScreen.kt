@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
@@ -30,27 +31,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mildfistassignment.component.DateDetailListItem
 import com.example.mildfistassignment.component.DateListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.model.CalendarDataSource
+import com.example.mildfistassignment.ui.theme.Gray
+import com.example.mildfistassignment.ui.theme.LightGray
 import com.example.mildfistassignment.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
+import java.util.Calendar
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun CalendarScreen(
+fun CalendarDetailScreen(
     navController: NavController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
     val dataSource = CalendarDataSource()
     var calendarUiModel by remember {
         mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today))
@@ -76,67 +79,50 @@ fun CalendarScreen(
         topBar = {
             MainTopBar(
                 month = calendarUiModel.selectedDate.date.monthValue.toString(),
-                enableRightButton = true,
-                onClickExpandButton = {
-                    isExpanded = !isExpanded
+                enableBackButton = true,
+                onClickBackButton = {
+                    navController.popBackStack()
                 },
-                enableBackButton = false
+                enableRightButton = false
             )
         }
     ) { paddingValues ->
-        ElevatedCard(
+        Column(
             modifier = modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 10.dp,
-                    shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                )
-                .padding(paddingValues),
-            colors = CardDefaults.elevatedCardColors(containerColor = White),
-            shape = RectangleShape
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            Column(
-                modifier = modifier
-                    .padding(20.dp)
-                    .animateContentSize(
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-            ) {
-                HorizontalCalendar(
-                    pagerState = pagerState,
-                    totalWeeks = totalWeeks,
-                    calendarUiModel = calendarUiModel,
-                    isExpanded = isExpanded,
-                    onClickDate = { clickedDate ->
-                        calendarUiModel = calendarUiModel.copy(
-                            selectedDate = clickedDate,
-                            visibleDates = calendarUiModel.visibleDates.map {
-                                it.copy(
-                                    isSelected = it.date.isEqual(clickedDate.date)
-                                )
-                            }
-                        )
-                    },
-                    onClickedTodayButton = {
-                        calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
-                        onClickedTodayButton = true
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-
-                Spacer(modifier = Modifier.size(24.dp))
-
-                if (isExpanded) {
-                    DateList(
-                        navigateToCalendarDetailScreen = {
-                            navController.navigate(Destination.CALENDAR_DETAIL.name)
+            HorizontalCalendar(
+                pagerState = pagerState,
+                totalWeeks = totalWeeks,
+                isExpanded = false,
+                calendarUiModel = calendarUiModel,
+                onClickDate = { clickedDate ->
+                    calendarUiModel = calendarUiModel.copy(
+                        selectedDate = clickedDate,
+                        visibleDates = calendarUiModel.visibleDates.map {
+                            it.copy(
+                                isSelected = it.date.isEqual(clickedDate.date)
+                            )
                         }
                     )
-                }
-            }
+                },
+                onClickedTodayButton = {
+                    calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
+                    onClickedTodayButton = true
+                },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.size(24.dp))
+
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(color = Color(0x1AB9BCBE))
+            )
+
+            DateDetailList()
         }
     }
 
@@ -172,8 +158,7 @@ fun CalendarScreen(
 }
 
 @Composable
-fun DateList(
-    navigateToCalendarDetailScreen: () -> Unit,
+fun DateDetailList(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -181,14 +166,13 @@ fun DateList(
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .height(480.dp),
+            .padding(8.dp),
         state = scrollState
     ) {
         items((0..23).toList()) { time ->
-            DateListItem(
+            DateDetailListItem(
                 time = time,
-                onClickDate = navigateToCalendarDetailScreen
+                onClickDate = {}
             )
         }
     }
@@ -200,6 +184,6 @@ fun DateList(
 
 @Preview(showBackground = true)
 @Composable
-fun CalendarScreenPreview() {
-//    CalendarScreen()
+fun CalendarDetailScreenPreview() {
+    CalendarDetailScreen()
 }

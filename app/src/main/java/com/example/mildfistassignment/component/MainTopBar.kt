@@ -33,6 +33,7 @@ fun MainTopBar(
     modifier: Modifier = Modifier,
     onClickExpandButton: () -> Unit = {},
     enableBackButton: Boolean = false,
+    enableRightButton: Boolean = false,
     onClickBackButton: () -> Unit = {}
 ) {
     Box(
@@ -73,18 +74,20 @@ fun MainTopBar(
                 tint = Gray
             )
         }
-        Text(
-            modifier = modifier
-                .align(Alignment.CenterEnd)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onClickExpandButton
-                ),
-            text = "주간 일정 잡기",
-            color = Gray,
-            fontSize = 12.sp
-        )
+        if (enableRightButton) {
+            Text(
+                modifier = modifier
+                    .align(Alignment.CenterEnd)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClickExpandButton
+                    ),
+                text = "주간 일정 잡기",
+                color = Gray,
+                fontSize = 12.sp
+            )
+        }
     }
 }
 
