@@ -19,24 +19,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mildfistassignment.model.CalendarUiModel
 import com.example.mildfistassignment.ui.theme.Gray
+import com.example.mildfistassignment.ui.theme.LightGray
 import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
 
 @Composable
 fun HorizontalDateItem(
     modifier: Modifier = Modifier,
+    enableSelectedMonth: Int,
     date: CalendarUiModel.Date,
     onClickDate: (CalendarUiModel.Date) -> Unit
 ) {
     Column(
-        modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {
-                    onClickDate(date)
-                }
-            ),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -51,12 +46,23 @@ fun HorizontalDateItem(
                     color = if (date.isSelected) Orange else Color.Transparent,
                     shape = CircleShape
                 )
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        if (date.date.monthValue == enableSelectedMonth) {
+                            onClickDate(date)
+                        }
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = date.date.dayOfMonth.toString(),
-                color = if (date.isSelected) White else Gray,
+                color = if (date.isSelected) White else {
+                    if (date.date.monthValue == enableSelectedMonth) Gray else LightGray
+                },
             )
         }
     }

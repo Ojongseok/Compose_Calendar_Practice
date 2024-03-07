@@ -73,15 +73,6 @@ fun CalendarScreen(
         calendarUiModel.selectedDate.date.month.maxLength()
     )
     val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
-    Log.d("taag selectedWeeks", selectedWeeks.toString())
-    Log.d("taag totalWeeks", totalWeeks.toString())
-
-//    val lastDay = getWeeksOfMonth(
-//        calendarUiModel.selectedDate.date.year,
-//        calendarUiModel.selectedDate.date.monthValue,
-//        calendarUiModel.selectedDate.date.month.maxLength()
-//    )
-//    Log.d("taag", lastDay.toString())
 
     Scaffold(
         modifier = modifier
@@ -153,6 +144,7 @@ fun CalendarScreen(
                             HorizontalDateItem(
                                 modifier = modifier
                                     .weight(1f),
+                                enableSelectedMonth = calendarUiModel.selectedDate.date.monthValue,
                                 date = date,
                                 onClickDate = { clickedDate ->
                                     calendarUiModel = calendarUiModel.copy(
@@ -191,16 +183,6 @@ fun CalendarScreen(
                     lastSelectedDate = calendarUiModel.selectedDate.date
                 )
             }
-//            Log.d("taag", (calendarUiModel.visibleDates.first().date.monthValue == dataSource.today.monthValue).toString())
-            // 이전을 조회할 수 있는 경우
-//            if (calendarUiModel.visibleDates.first().date.monthValue == dataSource.today.monthValue) {
-//                calendarUiModel = dataSource.getData(
-//                    startDate = calendarUiModel.startDate.date.minusDays(1),
-//                    lastSelectedDate = calendarUiModel.selectedDate.date
-//                )
-//            } else {
-//
-//            }
             prevPage = it
         }
     }
@@ -230,11 +212,7 @@ fun DateTimeList(
     }
 }
 
-fun getWeeksOfMonth(
-    year: Int,
-    month: Int,
-    day: Int
-): Int {
+fun getWeeksOfMonth(year: Int, month: Int, day: Int): Int {
     val calendar = Calendar.getInstance()
     calendar.set(year, month-1, day)
     return calendar.get(Calendar.WEEK_OF_MONTH)
