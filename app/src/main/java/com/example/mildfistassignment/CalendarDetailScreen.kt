@@ -1,5 +1,6 @@
 package com.example.mildfistassignment
 
+import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,21 +49,10 @@ fun CalendarDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    val dataSource = CalendarDataSource()
-    var calendarUiModel by remember {
-        mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today))
-    }
+    val calendarUiModel by viewModel.calendarUiModel.collectAsState()
+    val selectedWeeks by viewModel.selectedWeeks.collectAsState()
+    val totalWeeks by viewModel.totalWeeks.collectAsState()
 
-    val selectedWeeks = getWeeksOfMonth(
-        calendarUiModel.selectedDate.date.year,
-        calendarUiModel.selectedDate.date.monthValue,
-        calendarUiModel.selectedDate.date.dayOfMonth
-    )
-    val totalWeeks = getWeeksOfMonth(
-        calendarUiModel.selectedDate.date.year,
-        calendarUiModel.selectedDate.date.monthValue,
-        calendarUiModel.selectedDate.date.month.maxLength()
-    )
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
     var onClickedTodayButton by remember { mutableStateOf(false) }
@@ -91,17 +82,10 @@ fun CalendarDetailScreen(
                 isExpanded = false,
                 calendarUiModel = calendarUiModel,
                 onClickDate = { clickedDate ->
-                    calendarUiModel = calendarUiModel.copy(
-                        selectedDate = clickedDate,
-                        visibleDates = calendarUiModel.visibleDates.map {
-                            it.copy(
-                                isSelected = it.date.isEqual(clickedDate.date)
-                            )
-                        }
-                    )
+                    viewModel.updateSelectedDate(clickedDate)
                 },
                 onClickedTodayButton = {
-                    calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
+                    viewModel.initDateToToday()
                     onClickedTodayButton = true
                 },
                 modifier = Modifier.weight(1f)
@@ -127,15 +111,9 @@ fun CalendarDetailScreen(
         snapshotFlow { pagerState.currentPage }.collectLatest {
             if (!onClickedTodayButton) {
                 if (it < prevPage) {
-                    calendarUiModel = dataSource.getData(
-                        startDate = calendarUiModel.startDate.date.minusDays(1),
-                        lastSelectedDate = calendarUiModel.selectedDate.date
-                    )
+                    viewModel.swipeCalendar(Swipe.LEFT)
                 } else if (it > prevPage) {
-                    calendarUiModel = dataSource.getData(
-                        startDate = calendarUiModel.endDate.date.plusDays(2),
-                        lastSelectedDate = calendarUiModel.selectedDate.date
-                    )
+                    viewModel.swipeCalendar(Swipe.RIGHT)
                 }
             }
             prevPage = it

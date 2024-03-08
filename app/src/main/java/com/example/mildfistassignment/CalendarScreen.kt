@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,21 +52,12 @@ fun CalendarScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    var calendarUiModel by remember {
-        mutableStateOf(viewModel.dataSource.getData(lastSelectedDate = viewModel.dataSource.today))
-    }
+    val calendarUiModel by viewModel.calendarUiModel.collectAsState()
+    val selectedWeeks by viewModel.selectedWeeks.collectAsState()
+    val totalWeeks by viewModel.totalWeeks.collectAsState()
+
     var isExpanded by remember { mutableStateOf(false) }
 
-    val selectedWeeks = getWeeksOfMonth(
-        calendarUiModel.selectedDate.date.year,
-        calendarUiModel.selectedDate.date.monthValue,
-        calendarUiModel.selectedDate.date.dayOfMonth
-    )
-    val totalWeeks = getWeeksOfMonth(
-        calendarUiModel.selectedDate.date.year,
-        calendarUiModel.selectedDate.date.monthValue,
-        calendarUiModel.selectedDate.date.month.maxLength()
-    )
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
     var onClickedTodayButton by remember { mutableStateOf(false) }
@@ -111,22 +103,14 @@ fun CalendarScreen(
                     calendarUiModel = calendarUiModel,
                     isExpanded = isExpanded,
                     onClickDate = { clickedDate ->
-                        calendarUiModel = calendarUiModel.copy(
-                            selectedDate = clickedDate,
-                            visibleDates = calendarUiModel.visibleDates.map {
-                                it.copy(
-                                    isSelected = it.date.isEqual(clickedDate.date)
-                                )
-                            }
-                        )
+                        viewModel.updateSelectedDate(clickedDate)
                     },
                     onClickedTodayButton = {
-                        calendarUiModel = viewModel.dataSource.getData(lastSelectedDate = viewModel.dataSource.today)
+                        viewModel.initDateToToday()
                         onClickedTodayButton = true
                     },
                     modifier = Modifier.weight(1f)
                 )
-
                 Spacer(modifier = Modifier.size(24.dp))
 
                 if (isExpanded) {
@@ -145,15 +129,9 @@ fun CalendarScreen(
         snapshotFlow { pagerState.currentPage }.collectLatest {
             if (!onClickedTodayButton) {
                 if (it < prevPage) {
-                    calendarUiModel = viewModel.dataSource.getData(
-                        startDate = calendarUiModel.startDate.date.minusDays(1),
-                        lastSelectedDate = calendarUiModel.selectedDate.date
-                    )
+                    viewModel.swipeCalendar(Swipe.LEFT)
                 } else if (it > prevPage) {
-                    calendarUiModel = viewModel.dataSource.getData(
-                        startDate = calendarUiModel.endDate.date.plusDays(2),
-                        lastSelectedDate = calendarUiModel.selectedDate.date
-                    )
+                    viewModel.swipeCalendar(Swipe.RIGHT)
                 }
             }
             prevPage = it
