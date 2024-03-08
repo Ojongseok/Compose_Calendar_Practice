@@ -1,19 +1,15 @@
 package com.example.mildfistassignment
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,8 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,16 +29,13 @@ import com.example.mildfistassignment.ui.theme.Black
 import com.example.mildfistassignment.ui.theme.LightGray
 import com.example.mildfistassignment.ui.theme.White
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateScreen(
     navController: NavController = rememberNavController(),
     date: String,
     time: Int,
     modifier: Modifier = Modifier,
-    viewModel: CalendarViewModel = hiltViewModel()
 ) {
-//    Log.d("taag", viewModel.calendarUiModel.selectedDate.date.dayOfMonth.toString())
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -147,4 +140,13 @@ fun DateScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun DateScreenPreview() {
+    DateScreen(
+        time = 11,
+        date = "02월 13일 (월)"
+    )
 }

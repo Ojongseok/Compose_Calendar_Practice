@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -43,7 +44,7 @@ import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(
     navController: NavController = rememberNavController(),
@@ -54,7 +55,7 @@ fun CalendarScreen(
     val selectedWeeks by viewModel.selectedWeeks.collectAsState()
     val totalWeeks by viewModel.totalWeeks.collectAsState()
 
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
     var onClickedTodayButton by remember { mutableStateOf(false) }
 
