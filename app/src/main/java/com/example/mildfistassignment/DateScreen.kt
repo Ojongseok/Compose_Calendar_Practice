@@ -1,5 +1,6 @@
 package com.example.mildfistassignment
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,8 +36,11 @@ import com.example.mildfistassignment.ui.theme.White
 @Composable
 fun DateScreen(
     navController: NavController = rememberNavController(),
+    date: String,
+    time: Int,
     modifier: Modifier = Modifier
 ) {
+    Log.d("taag", time.toString())
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -63,7 +67,7 @@ fun DateScreen(
                         .fillMaxWidth()
                         .shadow(
                             elevation = 10.dp,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(16.dp)
                         ),
                     colors = CardDefaults.elevatedCardColors(containerColor = White),
                     shape = RoundedCornerShape(16.dp)
@@ -86,7 +90,7 @@ fun DateScreen(
                                 color = Black
                             )
                             Text(
-                                text = "02월 12일 (월)",
+                                text = date,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Black
@@ -108,7 +112,7 @@ fun DateScreen(
                                 color = Black
                             )
                             Text(
-                                text = "02월 12일 (월)",
+                                text = "${time.toString().padStart(2,'0')}:00",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Black
@@ -130,7 +134,7 @@ fun DateScreen(
                                 color = Black
                             )
                             Text(
-                                text = "02월 12일 (월)",
+                                text = "${(time+1).toString().padStart(2,'0')}:00",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Black

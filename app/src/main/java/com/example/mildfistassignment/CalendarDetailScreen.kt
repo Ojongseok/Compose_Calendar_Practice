@@ -33,7 +33,10 @@ import com.example.mildfistassignment.component.DateDetailListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.model.CalendarDataSource
+import com.example.mildfistassignment.model.CalendarUiModel
 import kotlinx.coroutines.flow.collectLatest
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -112,9 +115,8 @@ fun CalendarDetailScreen(
             )
 
             DateDetailList(
-                navigateToDateScreen = {
-                    navController.navigate(Destination.DATE.name)
-                }
+                navController = navController,
+                calendarUiModel = calendarUiModel
             )
         }
     }
@@ -152,7 +154,8 @@ fun CalendarDetailScreen(
 
 @Composable
 fun DateDetailList(
-    navigateToDateScreen: () -> Unit,
+    navController: NavController,
+    calendarUiModel: CalendarUiModel,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -166,7 +169,14 @@ fun DateDetailList(
         items((0..23).toList()) { time ->
             DateDetailListItem(
                 time = time,
-                onClickDate = navigateToDateScreen
+                onClickDate = {
+                    val date = toDateString(
+                        month = calendarUiModel.selectedDate.date.monthValue,
+                        day = calendarUiModel.selectedDate.date.dayOfMonth,
+                        dayOfWeeks = calendarUiModel.selectedDate.date.format(DateTimeFormatter.ofPattern( "E").withLocale(Locale.KOREAN))
+                    )
+                    navController.navigate("${Destination.DATE.name}/${date}/${time}")
+                }
             )
         }
     }
