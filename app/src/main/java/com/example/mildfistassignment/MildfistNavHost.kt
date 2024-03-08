@@ -43,14 +43,10 @@ fun MildfistNavHost(
                 }
             )
         ) {
-            val parentEntry = remember(it) {
-                navController.getBackStackEntry(Destination.CALENDAR.name)
-            }
             DateScreen(
                 navController = navController,
                 date = it.arguments?.getString("date")!!,
-                time = it.arguments?.getInt("time")!!,
-                viewModel = hiltViewModel(parentEntry)
+                time = it.arguments?.getInt("time")!!
             )
         }
     }

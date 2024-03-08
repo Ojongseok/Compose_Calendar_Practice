@@ -1,6 +1,5 @@
 package com.example.mildfistassignment
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -41,7 +40,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.DateListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
-import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
@@ -57,10 +55,10 @@ fun CalendarScreen(
     val totalWeeks by viewModel.totalWeeks.collectAsState()
 
     var isExpanded by remember { mutableStateOf(false) }
-
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
-
     var onClickedTodayButton by remember { mutableStateOf(false) }
+
+    var showCalendarBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier
@@ -72,6 +70,9 @@ fun CalendarScreen(
                 enableExpandButton = true,
                 onClickExpandButton = {
                     isExpanded = !isExpanded
+                },
+                onClickTitle = {
+                    showCalendarBottomSheet = true
                 },
                 enableBackButton = false
             )
@@ -122,6 +123,12 @@ fun CalendarScreen(
                 }
             }
         }
+    }
+
+    if (showCalendarBottomSheet) {
+        CalendarBottomSheet(
+            onDismissRequest = {showCalendarBottomSheet = false}
+        )
     }
 
     LaunchedEffect(key1 = pagerState) {

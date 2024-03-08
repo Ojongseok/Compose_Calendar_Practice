@@ -35,6 +35,7 @@ fun MainTopBar(
     enableBackButton: Boolean = false,
     onClickExpandButton: () -> Unit = {},
     onClickBackButton: () -> Unit = {},
+    onClickTitle: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -58,7 +59,12 @@ fun MainTopBar(
         }
         Row(
             modifier = modifier
-                .align(Alignment.Center),
+                .align(Alignment.Center)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClickTitle
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

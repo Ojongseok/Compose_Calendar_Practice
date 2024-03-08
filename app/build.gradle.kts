@@ -53,7 +53,7 @@ android {
 
 dependencies {
     // BottomSheet
-//    implementation("com.holix.android:bottomsheetdialog-compose:1.3.2")
+    implementation("com.holix.android:bottomsheetdialog-compose:1.3.2")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")

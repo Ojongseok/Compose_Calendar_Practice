@@ -1,6 +1,5 @@
 package com.example.mildfistassignment
 
-import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -35,8 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.DateDetailListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
-import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.model.CalendarUiModel
+import com.example.mildfistassignment.util.toDateString
 import kotlinx.coroutines.flow.collectLatest
 import java.time.format.DateTimeFormatter
 import java.util.Locale

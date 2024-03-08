@@ -1,4 +1,4 @@
-package com.example.mildfistassignment
+package com.example.mildfistassignment.di
 
 import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.model.CalendarUiModel
