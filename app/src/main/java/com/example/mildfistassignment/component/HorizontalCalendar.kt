@@ -27,7 +27,6 @@ fun HorizontalCalendar(
     Box {
         HorizontalPager(
             state = pagerState,
-            pageCount = totalWeeks
         ) {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),

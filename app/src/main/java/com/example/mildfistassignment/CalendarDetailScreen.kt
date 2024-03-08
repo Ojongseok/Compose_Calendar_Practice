@@ -60,7 +60,7 @@ fun CalendarDetailScreen(
         calendarUiModel.selectedDate.date.monthValue,
         calendarUiModel.selectedDate.date.month.maxLength()
     )
-    val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
+    val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
     var onClickedTodayButton by remember { mutableStateOf(false) }
 

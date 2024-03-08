@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.DateListItem
@@ -42,12 +43,13 @@ import com.example.mildfistassignment.model.CalendarDataSource
 import com.example.mildfistassignment.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(
     navController: NavController = rememberNavController(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CalendarViewModel = hiltViewModel()
+//    viewModel: CalendarViewModel = hiltViewModel()
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -66,7 +68,7 @@ fun CalendarScreen(
         calendarUiModel.selectedDate.date.monthValue,
         calendarUiModel.selectedDate.date.month.maxLength()
     )
-    val pagerState = rememberPagerState(initialPage = selectedWeeks-1)
+    val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
     var onClickedTodayButton by remember { mutableStateOf(false) }
 
