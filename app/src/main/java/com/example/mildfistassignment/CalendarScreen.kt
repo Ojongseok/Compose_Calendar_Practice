@@ -1,5 +1,6 @@
 package com.example.mildfistassignment
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -49,14 +50,11 @@ fun CalendarScreen(
     navController: NavController = rememberNavController(),
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
-//    viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    val dataSource = CalendarDataSource()
     var calendarUiModel by remember {
-        mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today))
+        mutableStateOf(viewModel.dataSource.getData(lastSelectedDate = viewModel.dataSource.today))
     }
+    var isExpanded by remember { mutableStateOf(false) }
 
     val selectedWeeks = getWeeksOfMonth(
         calendarUiModel.selectedDate.date.year,
@@ -110,7 +108,6 @@ fun CalendarScreen(
             ) {
                 HorizontalCalendar(
                     pagerState = pagerState,
-                    totalWeeks = totalWeeks,
                     calendarUiModel = calendarUiModel,
                     isExpanded = isExpanded,
                     onClickDate = { clickedDate ->
@@ -124,7 +121,7 @@ fun CalendarScreen(
                         )
                     },
                     onClickedTodayButton = {
-                        calendarUiModel = dataSource.getData(lastSelectedDate = dataSource.today)
+                        calendarUiModel = viewModel.dataSource.getData(lastSelectedDate = viewModel.dataSource.today)
                         onClickedTodayButton = true
                     },
                     modifier = Modifier.weight(1f)
@@ -148,12 +145,12 @@ fun CalendarScreen(
         snapshotFlow { pagerState.currentPage }.collectLatest {
             if (!onClickedTodayButton) {
                 if (it < prevPage) {
-                    calendarUiModel = dataSource.getData(
+                    calendarUiModel = viewModel.dataSource.getData(
                         startDate = calendarUiModel.startDate.date.minusDays(1),
                         lastSelectedDate = calendarUiModel.selectedDate.date
                     )
                 } else if (it > prevPage) {
-                    calendarUiModel = dataSource.getData(
+                    calendarUiModel = viewModel.dataSource.getData(
                         startDate = calendarUiModel.endDate.date.plusDays(2),
                         lastSelectedDate = calendarUiModel.selectedDate.date
                     )

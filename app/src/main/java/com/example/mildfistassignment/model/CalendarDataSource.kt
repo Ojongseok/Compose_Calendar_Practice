@@ -5,9 +5,10 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class CalendarDataSource {
-
+class CalendarDataSource @Inject constructor() {
     val today: LocalDate
         get() {
             return LocalDate.now()

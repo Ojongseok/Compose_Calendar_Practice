@@ -3,10 +3,12 @@ package com.example.mildfistassignment.model
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 
-data class CalendarUiModel(
+data class CalendarUiModel @Inject constructor(
     val selectedDate: Date, // 사용자가 선택한 날짜. 기본적으로 Today 입니다.
-    val visibleDates: List<Date> // 화면에 표시되는 날짜
+    val visibleDates: List<Date> = emptyList()// 화면에 표시되는 날짜
 ) {
 
     val startDate: Date = visibleDates.first() // 표시되는 날짜 중 첫 번째 날짜

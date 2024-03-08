@@ -17,7 +17,6 @@ import com.example.mildfistassignment.model.CalendarUiModel
 @Composable
 fun HorizontalCalendar(
     pagerState: PagerState,
-    totalWeeks: Int,
     calendarUiModel: CalendarUiModel,
     isExpanded: Boolean,
     onClickDate: (CalendarUiModel.Date) -> Unit,

@@ -1,6 +1,8 @@
 package com.example.mildfistassignment
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,11 +19,17 @@ fun MildfistNavHost(
         startDestination = Destination.CALENDAR.name
     ) {
         composable(route = Destination.CALENDAR.name) {
-            CalendarScreen(navController = navController)
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Destination.CALENDAR.name)
+            }
+            CalendarScreen(navController = navController, viewModel = hiltViewModel(parentEntry))
         }
 
         composable(route = Destination.CALENDAR_DETAIL.name) {
-            CalendarDetailScreen(navController = navController)
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Destination.CALENDAR.name)
+            }
+            CalendarDetailScreen(navController = navController, viewModel = hiltViewModel(parentEntry))
         }
 
         composable(
@@ -35,10 +43,14 @@ fun MildfistNavHost(
                 }
             )
         ) {
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Destination.CALENDAR.name)
+            }
             DateScreen(
                 navController = navController,
                 date = it.arguments?.getString("date")!!,
-                time = it.arguments?.getInt("time")!!
+                time = it.arguments?.getInt("time")!!,
+                viewModel = hiltViewModel(parentEntry)
             )
         }
     }

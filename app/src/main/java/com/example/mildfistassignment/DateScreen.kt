@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.MainTopBar
@@ -38,9 +39,10 @@ fun DateScreen(
     navController: NavController = rememberNavController(),
     date: String,
     time: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    Log.d("taag", time.toString())
+//    Log.d("taag", viewModel.calendarUiModel.selectedDate.date.dayOfMonth.toString())
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
