@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val dataSource: CalendarDataSource,
+    val dataSource: CalendarDataSource,
 ): ViewModel() {
     private val _calendarUiModel = MutableStateFlow(dataSource.getData(lastSelectedDate = dataSource.today))
     val calendarUiModel get() = _calendarUiModel.asStateFlow()

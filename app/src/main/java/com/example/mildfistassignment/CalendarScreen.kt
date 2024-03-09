@@ -128,7 +128,8 @@ fun CalendarScreen(
 
     if (showCalendarBottomSheet) {
         CalendarBottomSheet(
-            onDismissRequest = {showCalendarBottomSheet = false}
+            onDismissRequest = {showCalendarBottomSheet = false},
+            viewModel = viewModel
         )
     }
 
