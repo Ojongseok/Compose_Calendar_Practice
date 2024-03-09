@@ -51,6 +51,7 @@ import java.time.LocalDate
 @Composable
 fun CalendarBottomSheet(
     onDismissRequest: () -> Unit,
+    onClickedTodayButton: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
@@ -84,7 +85,7 @@ fun CalendarBottomSheet(
             CalendarHeader(
                 title = toCalendarTitle(currentMonth.year, currentMonth.monthValue),
                 onClickTodayButton = {
-                    viewModel.initDateToToday()
+                    onClickedTodayButton()
                     onDismissRequest()
                 }
             )
@@ -267,5 +268,5 @@ object CALENDAR_RANGE {
 @Preview(showBackground = true)
 @Composable
 fun CalendarBottomSheetPreview() {
-    CalendarBottomSheet(onDismissRequest = {})
+//    CalendarBottomSheet(onDismissRequest = {})
 }

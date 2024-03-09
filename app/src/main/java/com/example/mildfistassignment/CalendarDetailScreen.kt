@@ -54,6 +54,7 @@ fun CalendarDetailScreen(
 
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
+    var onClickedTodayButton by remember { mutableStateOf(false) }
     var showCalendarBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -87,6 +88,7 @@ fun CalendarDetailScreen(
                 },
                 onClickedTodayButton = {
                     viewModel.initDateToToday()
+                    onClickedTodayButton = true
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -109,6 +111,10 @@ fun CalendarDetailScreen(
     if (showCalendarBottomSheet) {
         CalendarBottomSheet(
             onDismissRequest = {showCalendarBottomSheet = false},
+            onClickedTodayButton = {
+                viewModel.initDateToToday()
+                onClickedTodayButton = true
+            },
             viewModel = viewModel
         )
     }
@@ -118,6 +124,16 @@ fun CalendarDetailScreen(
             page = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth)-1,
             animationSpec = spring(stiffness = 1000f)
         )
+    }
+
+    LaunchedEffect(key1 = onClickedTodayButton) {
+        if (onClickedTodayButton) {
+            pagerState.animateScrollToPage(
+                page = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth) -1,
+                animationSpec = spring(stiffness = 1000f)
+            )
+            onClickedTodayButton = false
+        }
     }
 }
 
