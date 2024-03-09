@@ -74,33 +74,9 @@ fun CalendarBottomSheet(
                 )
                 .padding(vertical = 24.dp, horizontal = 12.dp)
         ) {
-            Box(modifier = modifier.fillMaxWidth()) {
-                Text(
-                    modifier = modifier.align(Alignment.Center),
-                    text = "캘린더",
-                    fontWeight = FontWeight.Bold,
-                    color = Black
-                )
-                Box(
-                    modifier = modifier
-                        .border(
-                            shape = RoundedCornerShape(20.dp),
-                            width = 1.dp,
-                            color = Gray
-                        )
-                        .padding(vertical = 4.dp, horizontal = 10.dp)
-                        .align(Alignment.CenterEnd)
-                ) {
-                    Text(
-                        modifier = modifier
-                            .align(Alignment.Center),
-                        text = "오늘로",
-                        fontSize = 12.sp,
-                        color = Gray
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.size(20.dp))
+            CalendarHeader(
+                title = "2020 24"
+            )
 
             HorizontalCalendar(
                 currentDate = calendarUiModel.selectedDate.date,
@@ -113,6 +89,55 @@ fun CalendarBottomSheet(
                         )
                     )
                 }
+            )
+        }
+    }
+}
+
+@Composable
+fun CalendarHeader(
+    modifier: Modifier = Modifier,
+    title: String
+) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        Text(
+            modifier = modifier.align(Alignment.Center),
+            text = title,
+            fontWeight = FontWeight.Bold,
+            color = Black
+        )
+        Box(
+            modifier = modifier
+                .border(
+                    shape = RoundedCornerShape(20.dp),
+                    width = 1.dp,
+                    color = Gray
+                )
+                .padding(vertical = 4.dp, horizontal = 10.dp)
+                .align(Alignment.CenterEnd)
+        ) {
+            Text(
+                modifier = modifier
+                    .align(Alignment.Center),
+                text = "오늘로",
+                fontSize = 12.sp,
+                color = Gray
+            )
+        }
+    }
+    Spacer(modifier = Modifier.size(20.dp))
+
+    Row(modifier) {
+//        val dayOfWeek = listOf("일","월","화","수","목","금","토")
+        DayOfWeek.values().forEach { dayOfWeek ->
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                text = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW,Locale.KOREAN),
+                textAlign = TextAlign.Center,
+                color = Gray,
+                fontSize = 13.sp
             )
         }
     }
@@ -182,10 +207,9 @@ fun CalendarMonthItem(
     val firstDayOfWeek by remember { mutableIntStateOf(currentDate.dayOfWeek.value) }
     val days by remember { mutableStateOf(IntRange(1, lastDay).toList()) }
 
-    Column(modifier = modifier) {
-        DayOfWeek()
+    Column {
         LazyVerticalGrid(
-            modifier = Modifier.height(260.dp),
+            modifier = modifier.height(260.dp),
             columns = GridCells.Fixed(7)
         ) {
             for (i in 1 until firstDayOfWeek) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성
@@ -210,27 +234,6 @@ fun CalendarMonthItem(
                     onSelectedDate = onSelectedDate
                 )
             }
-        }
-    }
-}
-
-/** 흠.. 이거 상단 고정이네 **/
-@Composable
-fun DayOfWeek(
-    modifier: Modifier = Modifier
-) {
-    Row(modifier) {
-//        val dayOfWeek = listOf("일","월","화","수","목","금","토")
-        DayOfWeek.values().forEach { dayOfWeek ->
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                text = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW,Locale.KOREAN),
-                textAlign = TextAlign.Center,
-                color = Gray,
-                fontSize = 13.sp
-            )
         }
     }
 }
@@ -294,8 +297,6 @@ data class HorizontalCalendarConfig(
     val yearRange: IntRange = IntRange(1970, 2100),
     val locale: Locale = Locale.KOREAN
 )
-
-
 
 @Preview(showBackground = true)
 @Composable
