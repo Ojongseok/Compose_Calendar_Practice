@@ -8,14 +8,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -34,9 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,16 +41,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mildfistassignment.model.CalendarUiModel
 import com.example.mildfistassignment.ui.theme.Black
 import com.example.mildfistassignment.ui.theme.Gray
-import com.example.mildfistassignment.ui.theme.LightGray
 import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
 import com.example.mildfistassignment.util.toCalendarTitle
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
-import java.util.Locale
 
 @Composable
 fun CalendarBottomSheet(
@@ -64,6 +55,7 @@ fun CalendarBottomSheet(
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val calendarUiModel by viewModel.calendarUiModel.collectAsState()
+    var title by remember { mutableStateOf("") }
 
     BottomSheetDialog(
         onDismissRequest = onDismissRequest,
@@ -80,10 +72,7 @@ fun CalendarBottomSheet(
                 .padding(vertical = 24.dp, horizontal = 12.dp)
         ) {
             CalendarHeader(
-                title = toCalendarTitle(
-                    year = calendarUiModel.selectedDate.date.year,
-                    month = calendarUiModel.selectedDate.date.monthValue
-                ),
+                title = title,
                 onClickTodayButton = {
                     viewModel.initDateToToday()
                     onDismissRequest()
@@ -101,6 +90,9 @@ fun CalendarBottomSheet(
                         )
                     )
                     onDismissRequest()
+                },
+                onChangePage = { year, month ->
+                    title = toCalendarTitle(year, month)
                 }
             )
         }
@@ -109,9 +101,9 @@ fun CalendarBottomSheet(
 
 @Composable
 fun CalendarHeader(
-    modifier: Modifier = Modifier,
     title: String,
-    onClickTodayButton: () -> Unit
+    onClickTodayButton: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -168,27 +160,28 @@ fun CalendarHeader(
 fun HorizontalCalendar(
     calendarUiModel: CalendarUiModel,
     onSelectedDate: (LocalDate) -> Unit,
-    config: HorizontalCalendarConfig = HorizontalCalendarConfig(),
+    onChangePage: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val initialPage = (calendarUiModel.selectedDate.date.year - config.yearRange.first) * 12 + calendarUiModel.selectedDate.date.monthValue - 1
-    val pageCount = (config.yearRange.last - config.yearRange.first) * 12
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    val initialPage = (calendarUiModel.selectedDate.date.year - CALENDAR_RANGE.firstYear) * 12 + calendarUiModel.selectedDate.date.monthValue - 1
+    val pageCount = (CALENDAR_RANGE.lastYear - CALENDAR_RANGE.firstYear) * 12
+    var currentMonth by remember { mutableStateOf(calendarUiModel.selectedDate.date) }
     var currentPage by remember { mutableIntStateOf(initialPage) }
 
     val pagerState = rememberPagerState(pageCount = {pageCount}, initialPage = initialPage)
 
     LaunchedEffect(pagerState.currentPage) {
         val addMonth = (pagerState.currentPage - currentPage).toLong()
-        currentMonth = currentMonth.plusMonths(addMonth)
         currentPage = pagerState.currentPage
+        currentMonth = currentMonth.plusMonths(addMonth)
+        onChangePage(currentMonth.year, currentMonth.monthValue)
     }
 
     HorizontalPager(
         state = pagerState
     ) { page ->
         val date = LocalDate.of(
-            config.yearRange.first + page / 12,
+            CALENDAR_RANGE.firstYear + page / 12,
             page % 12 + 1,
             1
         )
@@ -196,7 +189,6 @@ fun HorizontalCalendar(
         CalendarMonthItem(
             calendarUiModel = calendarUiModel,
             currentDate = date,
-            selectedDate = calendarUiModel.selectedDate.date,
             onSelectedDate = {
                 onSelectedDate(it)
             }
@@ -209,7 +201,6 @@ fun HorizontalCalendar(
 fun CalendarMonthItem(
     calendarUiModel: CalendarUiModel,
     currentDate: LocalDate,
-    selectedDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -236,7 +227,7 @@ fun CalendarMonthItem(
 
                 CalendarDay(
                     date = date,
-                    isSelected = date == selectedDate,
+                    isSelected = date == calendarUiModel.selectedDate.date,
                     onSelectedDate = {
                         onSelectedDate(it)
                     }
@@ -282,10 +273,10 @@ fun CalendarDay(
     }
 }
 
-data class HorizontalCalendarConfig(
-    val yearRange: IntRange = IntRange(1990, 2025),
-    val locale: Locale = Locale.KOREAN
-)
+object CALENDAR_RANGE {
+    const val firstYear = 2000
+    const val lastYear = 2030
+}
 
 @Preview(showBackground = true)
 @Composable

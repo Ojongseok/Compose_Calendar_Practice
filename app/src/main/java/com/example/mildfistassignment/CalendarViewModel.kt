@@ -10,17 +10,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    val dataSource: CalendarDataSource,
+    private val dataSource: CalendarDataSource,
 ): ViewModel() {
     private val _calendarUiModel = MutableStateFlow(dataSource.getData(lastSelectedDate = dataSource.today))
     val calendarUiModel get() = _calendarUiModel.asStateFlow()
 
     val selectedWeeks = MutableStateFlow<Int>(0)
     val totalWeeks = MutableStateFlow<Int>(0)
+
+    private val _selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
+    val selectedDate get() = _calendarUiModel.asStateFlow()
 
     init {
         collectingSelectedDate()
