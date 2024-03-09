@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +21,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,10 +33,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.mildfistassignment.component.DateDetailListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
-import com.example.mildfistassignment.model.CalendarUiModel
+import com.example.mildfistassignment.util.getWeeksOfMonth
 import com.example.mildfistassignment.util.toDateString
-import kotlinx.coroutines.flow.collectLatest
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.TextStyle
 import java.util.Locale
 
 
@@ -48,24 +48,26 @@ fun CalendarDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    val calendarUiModel by viewModel.calendarUiModel.collectAsState()
-    val selectedWeeks by viewModel.selectedWeeks.collectAsState()
-    val totalWeeks by viewModel.totalWeeks.collectAsState()
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val totalWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.month.maxLength())
+    val selectedWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth)
 
     val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
-    var onClickedTodayButton by remember { mutableStateOf(false) }
+    var showCalendarBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             MainTopBar(
-                title = calendarUiModel.selectedDate.date.monthValue.toString().padStart(2,'0') + "월",
+                title = selectedDate.monthValue.toString().padStart(2,'0') + "월",
                 titleIcon = true,
                 enableBackButton = true,
                 onClickBackButton = {
                     navController.popBackStack()
+                },
+                onClickTitle = {
+                    showCalendarBottomSheet = true
                 },
                 enableExpandButton = false
             )
@@ -78,14 +80,13 @@ fun CalendarDetailScreen(
         ) {
             HorizontalCalendar(
                 pagerState = pagerState,
+                viewModel = viewModel,
                 isExpanded = false,
-                calendarUiModel = calendarUiModel,
                 onClickDate = { clickedDate ->
                     viewModel.updateSelectedDate(clickedDate)
                 },
                 onClickedTodayButton = {
                     viewModel.initDateToToday()
-                    onClickedTodayButton = true
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -100,40 +101,30 @@ fun CalendarDetailScreen(
 
             DateDetailList(
                 navController = navController,
-                calendarUiModel = calendarUiModel
+                selectedDate = selectedDate
             )
         }
     }
 
-    LaunchedEffect(key1 = pagerState) {
-        var prevPage = pagerState.initialPage
-        snapshotFlow { pagerState.currentPage }.collectLatest {
-            if (!onClickedTodayButton) {
-                if (it < prevPage) {
-                    viewModel.swipeCalendar(Swipe.LEFT)
-                } else if (it > prevPage) {
-                    viewModel.swipeCalendar(Swipe.RIGHT)
-                }
-            }
-            prevPage = it
-        }
+    if (showCalendarBottomSheet) {
+        CalendarBottomSheet(
+            onDismissRequest = {showCalendarBottomSheet = false},
+            viewModel = viewModel
+        )
     }
 
-    LaunchedEffect(key1 = onClickedTodayButton) {
-        if (onClickedTodayButton) {
-            pagerState.animateScrollToPage(
-                page = selectedWeeks-1,
-                animationSpec = spring(stiffness = 1000f)
-            )
-            onClickedTodayButton = false
-        }
+    LaunchedEffect(key1 = selectedDate) {
+        pagerState.animateScrollToPage(
+            page = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth)-1,
+            animationSpec = spring(stiffness = 1000f)
+        )
     }
 }
 
 @Composable
 fun DateDetailList(
     navController: NavController,
-    calendarUiModel: CalendarUiModel,
+    selectedDate: LocalDate,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
@@ -149,9 +140,9 @@ fun DateDetailList(
                 time = time,
                 onClickDate = {
                     val date = toDateString(
-                        month = calendarUiModel.selectedDate.date.monthValue,
-                        day = calendarUiModel.selectedDate.date.dayOfMonth,
-                        dayOfWeeks = calendarUiModel.selectedDate.date.format(DateTimeFormatter.ofPattern( "E").withLocale(Locale.KOREAN))
+                        month = selectedDate.monthValue,
+                        day = selectedDate.dayOfMonth,
+                        dayOfWeeks = selectedDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.KOREAN)
                     )
                     navController.navigate("${Destination.DATE.name}/${date}/${time}")
                 }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,30 +39,39 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mildfistassignment.model.CalendarUiModel
 import com.example.mildfistassignment.ui.theme.Black
 import com.example.mildfistassignment.ui.theme.Gray
 import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
 import com.example.mildfistassignment.util.toCalendarTitle
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
-import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import java.time.LocalDate
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    val calendarUiModel by viewModel.calendarUiModel.collectAsState()
-    var title by remember { mutableStateOf("") }
+    val selectedDate by viewModel.selectedDate.collectAsState()
+
+    val initialPage = (selectedDate.year - CALENDAR_RANGE.firstYear) * 12 + selectedDate.monthValue - 1
+    val pageCount = (CALENDAR_RANGE.lastYear - CALENDAR_RANGE.firstYear) * 12
+
+    val pagerState = rememberPagerState(pageCount = {pageCount}, initialPage = initialPage)
+
+    var currentMonth by remember { mutableStateOf(selectedDate) }
+    var currentPage by remember { mutableIntStateOf(initialPage) }
+
+    LaunchedEffect(key1 = pagerState.currentPage) {
+        val addMonth = (pagerState.currentPage - currentPage).toLong()
+        currentMonth = currentMonth.plusMonths(addMonth)
+        currentPage = pagerState.currentPage
+    }
 
     BottomSheetDialog(
-        onDismissRequest = onDismissRequest,
-        properties = BottomSheetDialogProperties(
-
-        )
+        onDismissRequest = onDismissRequest
     ) {
         Column(
             modifier = modifier
@@ -72,27 +82,18 @@ fun CalendarBottomSheet(
                 .padding(vertical = 24.dp, horizontal = 12.dp)
         ) {
             CalendarHeader(
-                title = title,
+                title = toCalendarTitle(currentMonth.year, currentMonth.monthValue),
                 onClickTodayButton = {
                     viewModel.initDateToToday()
                     onDismissRequest()
                 }
             )
-
-            HorizontalCalendar(
-                calendarUiModel = calendarUiModel,
+            CalendarInBottomSheet(
+                pagerState = pagerState,
+                selectedDate = selectedDate,
                 onSelectedDate = {
-                    viewModel.updateSelectedDate(
-                        CalendarUiModel.Date(
-                            isSelected = true,
-                            isToday = it.isEqual(LocalDate.now()),
-                            date = it
-                        )
-                    )
+                    viewModel.updateSelectedDate(it)
                     onDismissRequest()
-                },
-                onChangePage = { year, month ->
-                    title = toCalendarTitle(year, month)
                 }
             )
         }
@@ -157,25 +158,12 @@ fun CalendarHeader(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HorizontalCalendar(
-    calendarUiModel: CalendarUiModel,
+fun CalendarInBottomSheet(
+    pagerState: PagerState,
+    selectedDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
-    onChangePage: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val initialPage = (calendarUiModel.selectedDate.date.year - CALENDAR_RANGE.firstYear) * 12 + calendarUiModel.selectedDate.date.monthValue - 1
-    val pageCount = (CALENDAR_RANGE.lastYear - CALENDAR_RANGE.firstYear) * 12
-    var currentMonth by remember { mutableStateOf(calendarUiModel.selectedDate.date) }
-    var currentPage by remember { mutableIntStateOf(initialPage) }
-
-    val pagerState = rememberPagerState(pageCount = {pageCount}, initialPage = initialPage)
-
-    LaunchedEffect(pagerState.currentPage) {
-        val addMonth = (pagerState.currentPage - currentPage).toLong()
-        currentPage = pagerState.currentPage
-        currentMonth = currentMonth.plusMonths(addMonth)
-        onChangePage(currentMonth.year, currentMonth.monthValue)
-    }
 
     HorizontalPager(
         state = pagerState
@@ -187,7 +175,7 @@ fun HorizontalCalendar(
         )
 //        if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 페이징 성능 개선을 위한 조건문
         CalendarMonthItem(
-            calendarUiModel = calendarUiModel,
+            selectedDate = selectedDate,
             currentDate = date,
             onSelectedDate = {
                 onSelectedDate(it)
@@ -199,7 +187,7 @@ fun HorizontalCalendar(
 
 @Composable
 fun CalendarMonthItem(
-    calendarUiModel: CalendarUiModel,
+    selectedDate: LocalDate,
     currentDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
@@ -216,18 +204,16 @@ fun CalendarMonthItem(
         ) {
             for (i in 1 until firstDayOfWeek + 1) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성, 일요일부터 시작!
                 item {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                    )
+                    Box(modifier = Modifier.size(32.dp))
                 }
             }
+
             items(items = days) { day ->
                 val date = currentDate.withDayOfMonth(day)
 
                 CalendarDay(
                     date = date,
-                    isSelected = date == calendarUiModel.selectedDate.date,
+                    isSelected = date.isEqual(selectedDate),
                     onSelectedDate = {
                         onSelectedDate(it)
                     }
@@ -239,10 +225,10 @@ fun CalendarMonthItem(
 
 @Composable
 fun CalendarDay(
-    modifier: Modifier = Modifier,
     date: LocalDate,
     isSelected: Boolean,
-    onSelectedDate: (LocalDate) -> Unit
+    onSelectedDate: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = Modifier

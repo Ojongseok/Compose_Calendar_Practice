@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -42,7 +43,11 @@ import com.example.mildfistassignment.component.DateListItem
 import com.example.mildfistassignment.component.HorizontalCalendar
 import com.example.mildfistassignment.component.MainTopBar
 import com.example.mildfistassignment.ui.theme.White
+import com.example.mildfistassignment.util.getWeeksOfMonth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -51,14 +56,13 @@ fun CalendarScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    val calendarUiModel by viewModel.calendarUiModel.collectAsState()
-    val selectedWeeks by viewModel.selectedWeeks.collectAsState()
-    val totalWeeks by viewModel.totalWeeks.collectAsState()
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val totalWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.month.maxLength())
+    val selectedWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth)
+
+    val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
 
     var isExpanded by rememberSaveable { mutableStateOf(false) }
-    val pagerState = rememberPagerState(pageCount = {totalWeeks}, initialPage = selectedWeeks-1)
-    var onClickedTodayButton by remember { mutableStateOf(false) }
-
     var showCalendarBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -66,7 +70,7 @@ fun CalendarScreen(
             .fillMaxSize(),
         topBar = {
             MainTopBar(
-                title = calendarUiModel.selectedDate.date.monthValue.toString().padStart(2,'0') + "월",
+                title = selectedDate.monthValue.toString().padStart(2,'0') + "월",
                 titleIcon = true,
                 enableExpandButton = true,
                 onClickExpandButton = {
@@ -102,14 +106,13 @@ fun CalendarScreen(
             ) {
                 HorizontalCalendar(
                     pagerState = pagerState,
-                    calendarUiModel = calendarUiModel,
+                    viewModel = viewModel,
                     isExpanded = isExpanded,
                     onClickDate = { clickedDate ->
                         viewModel.updateSelectedDate(clickedDate)
                     },
                     onClickedTodayButton = {
                         viewModel.initDateToToday()
-                        onClickedTodayButton = true
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -133,28 +136,11 @@ fun CalendarScreen(
         )
     }
 
-    LaunchedEffect(key1 = pagerState) {
-        var prevPage = pagerState.initialPage
-        snapshotFlow { pagerState.currentPage }.collectLatest {
-            if (!onClickedTodayButton) {
-                if (it < prevPage) {
-                    viewModel.swipeCalendar(Swipe.LEFT)
-                } else if (it > prevPage) {
-                    viewModel.swipeCalendar(Swipe.RIGHT)
-                }
-            }
-            prevPage = it
-        }
-    }
-
-    LaunchedEffect(key1 = onClickedTodayButton) {
-        if (onClickedTodayButton) {
-            pagerState.animateScrollToPage(
-                page = selectedWeeks-1,
-                animationSpec = spring(stiffness = 1000f)
-            )
-            onClickedTodayButton = false
-        }
+    LaunchedEffect(key1 = selectedDate) {
+        pagerState.animateScrollToPage(
+            page = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.dayOfMonth)-1,
+            animationSpec = spring(stiffness = 1000f)
+        )
     }
 }
 
