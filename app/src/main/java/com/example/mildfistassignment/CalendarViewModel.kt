@@ -24,7 +24,9 @@ class CalendarViewModel @Inject constructor(
     val totalWeeks = MutableStateFlow<Int>(0)
 
     private val _selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
-    val selectedDate get() = _calendarUiModel.asStateFlow()
+    val selectedDate get() = _selectedDate.asStateFlow()
+
+    val selectedMonth = MutableStateFlow<Int>(selectedDate.value.monthValue)
 
     init {
         collectingSelectedDate()
