@@ -11,3 +11,7 @@ fun getWeeksOfMonth(year: Int, month: Int, day: Int): Int {
 fun toDateString(month: Int, day: Int, dayOfWeeks: String): String {
     return "${month.toString().padStart(2,'0')}월 ${day.toString().padStart(2,'0')}일 (${dayOfWeeks})"
 }
+
+fun toCalendarTitle(year: Int, month: Int): String {
+    return "${year}년 ${month.toString().padStart(2,'0')}월"
+}

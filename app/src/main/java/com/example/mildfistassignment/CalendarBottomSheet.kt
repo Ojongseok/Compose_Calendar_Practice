@@ -49,6 +49,7 @@ import com.example.mildfistassignment.ui.theme.Gray
 import com.example.mildfistassignment.ui.theme.LightGray
 import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
+import com.example.mildfistassignment.util.toCalendarTitle
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import java.time.DayOfWeek
@@ -79,12 +80,18 @@ fun CalendarBottomSheet(
                 .padding(vertical = 24.dp, horizontal = 12.dp)
         ) {
             CalendarHeader(
-                title = "2020 24"
+                title = toCalendarTitle(
+                    year = calendarUiModel.selectedDate.date.year,
+                    month = calendarUiModel.selectedDate.date.monthValue
+                ),
+                onClickTodayButton = {
+                    viewModel.initDateToToday()
+                    onDismissRequest()
+                }
             )
 
             HorizontalCalendar(
                 calendarUiModel = calendarUiModel,
-                currentDate = calendarUiModel.selectedDate.date,
                 onSelectedDate = {
                     viewModel.updateSelectedDate(
                         CalendarUiModel.Date(
@@ -93,6 +100,7 @@ fun CalendarBottomSheet(
                             date = it
                         )
                     )
+                    onDismissRequest()
                 }
             )
         }
@@ -102,7 +110,8 @@ fun CalendarBottomSheet(
 @Composable
 fun CalendarHeader(
     modifier: Modifier = Modifier,
-    title: String
+    title: String,
+    onClickTodayButton: () -> Unit
 ) {
     Box(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -123,7 +132,12 @@ fun CalendarHeader(
         ) {
             Text(
                 modifier = modifier
-                    .align(Alignment.Center),
+                    .align(Alignment.Center)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClickTodayButton
+                    ),
                 text = "오늘로",
                 fontSize = 12.sp,
                 color = Gray
@@ -133,14 +147,14 @@ fun CalendarHeader(
     Spacer(modifier = Modifier.size(20.dp))
 
     Row(modifier) {
-//        val dayOfWeek = listOf("일","월","화","수","목","금","토")
-        DayOfWeek.values().forEach { dayOfWeek ->
+        val dayOfWeek = listOf("일","월","화","수","목","금","토")
+        dayOfWeek.forEach { day ->
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .weight(1f),
-                text = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW,Locale.KOREAN),
+                text = day,
                 textAlign = TextAlign.Center,
                 color = Gray,
                 fontSize = 13.sp
@@ -153,15 +167,12 @@ fun CalendarHeader(
 @Composable
 fun HorizontalCalendar(
     calendarUiModel: CalendarUiModel,
-    currentDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
     config: HorizontalCalendarConfig = HorizontalCalendarConfig(),
     modifier: Modifier = Modifier
 ) {
-    val initialPage = (currentDate.year - config.yearRange.first) * 12 + currentDate.monthValue - 1
+    val initialPage = (calendarUiModel.selectedDate.date.year - config.yearRange.first) * 12 + calendarUiModel.selectedDate.date.monthValue - 1
     val pageCount = (config.yearRange.last - config.yearRange.first) * 12
-
-    var currentSelectedDate by remember { mutableStateOf(currentDate) }
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var currentPage by remember { mutableIntStateOf(initialPage) }
 
@@ -173,10 +184,6 @@ fun HorizontalCalendar(
         currentPage = pagerState.currentPage
     }
 
-//    LaunchedEffect(currentSelectedDate) {
-//        onSelectedDate(currentSelectedDate)
-//    }
-
     HorizontalPager(
         state = pagerState
     ) { page ->
@@ -187,11 +194,9 @@ fun HorizontalCalendar(
         )
 //        if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 페이징 성능 개선을 위한 조건문
         CalendarMonthItem(
+            calendarUiModel = calendarUiModel,
             currentDate = date,
             selectedDate = calendarUiModel.selectedDate.date,
-//            onSelectedDate = { date ->
-//                currentSelectedDate = date
-//            }
             onSelectedDate = {
                 onSelectedDate(it)
             }
@@ -202,6 +207,7 @@ fun HorizontalCalendar(
 
 @Composable
 fun CalendarMonthItem(
+    calendarUiModel: CalendarUiModel,
     currentDate: LocalDate,
     selectedDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
@@ -217,7 +223,7 @@ fun CalendarMonthItem(
             columns = GridCells.Fixed(7),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            for (i in 1 until firstDayOfWeek) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성
+            for (i in 1 until firstDayOfWeek + 1) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성, 일요일부터 시작!
                 item {
                     Box(
                         modifier = Modifier
@@ -227,9 +233,6 @@ fun CalendarMonthItem(
             }
             items(items = days) { day ->
                 val date = currentDate.withDayOfMonth(day)
-                val isSelected = remember(selectedDate) {
-                    selectedDate.compareTo(date) == 0
-                }
 
                 CalendarDay(
                     date = date,
