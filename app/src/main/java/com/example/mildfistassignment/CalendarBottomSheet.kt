@@ -4,9 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ import com.example.mildfistassignment.model.CalendarUiModel
 import com.example.mildfistassignment.ui.theme.Black
 import com.example.mildfistassignment.ui.theme.Gray
 import com.example.mildfistassignment.ui.theme.LightGray
+import com.example.mildfistassignment.ui.theme.Orange
 import com.example.mildfistassignment.ui.theme.White
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
@@ -79,6 +83,7 @@ fun CalendarBottomSheet(
             )
 
             HorizontalCalendar(
+                calendarUiModel = calendarUiModel,
                 currentDate = calendarUiModel.selectedDate.date,
                 onSelectedDate = {
                     viewModel.updateSelectedDate(
@@ -133,6 +138,7 @@ fun CalendarHeader(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(vertical = 4.dp)
                     .weight(1f),
                 text = dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW,Locale.KOREAN),
                 textAlign = TextAlign.Center,
@@ -146,6 +152,7 @@ fun CalendarHeader(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HorizontalCalendar(
+    calendarUiModel: CalendarUiModel,
     currentDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
     config: HorizontalCalendarConfig = HorizontalCalendarConfig(),
@@ -166,9 +173,9 @@ fun HorizontalCalendar(
         currentPage = pagerState.currentPage
     }
 
-    LaunchedEffect(currentSelectedDate) {
-        onSelectedDate(currentSelectedDate)
-    }
+//    LaunchedEffect(currentSelectedDate) {
+//        onSelectedDate(currentSelectedDate)
+//    }
 
     HorizontalPager(
         state = pagerState
@@ -180,17 +187,14 @@ fun HorizontalCalendar(
         )
 //        if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 페이징 성능 개선을 위한 조건문
         CalendarMonthItem(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
             currentDate = date,
-            selectedDate = currentSelectedDate,
-            onSelectedDate = { date ->
-                currentSelectedDate = date
+            selectedDate = calendarUiModel.selectedDate.date,
+//            onSelectedDate = { date ->
+//                currentSelectedDate = date
+//            }
+            onSelectedDate = {
+                onSelectedDate(it)
             }
-//            onSelectedDate = onSelectedData {
-//
-//            }    이래도 되는거 아님? LaunchEffect 안거치고?
         )
 //        }
     }
@@ -207,17 +211,17 @@ fun CalendarMonthItem(
     val firstDayOfWeek by remember { mutableIntStateOf(currentDate.dayOfWeek.value) }
     val days by remember { mutableStateOf(IntRange(1, lastDay).toList()) }
 
-    Column {
+    Column(modifier = modifier.fillMaxWidth()) {
         LazyVerticalGrid(
-            modifier = modifier.height(260.dp),
-            columns = GridCells.Fixed(7)
+            modifier = modifier.fillMaxWidth(),
+            columns = GridCells.Fixed(7),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             for (i in 1 until firstDayOfWeek) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성
                 item {
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
-                            .padding(top = 10.dp)
+                            .size(32.dp)
                     )
                 }
             }
@@ -226,12 +230,13 @@ fun CalendarMonthItem(
                 val isSelected = remember(selectedDate) {
                     selectedDate.compareTo(date) == 0
                 }
+
                 CalendarDay(
-                    modifier = Modifier.padding(top = 10.dp),
                     date = date,
-                    isToday = date == LocalDate.now(),
-                    isSelected = isSelected,
-                    onSelectedDate = onSelectedDate
+                    isSelected = date == selectedDate,
+                    onSelectedDate = {
+                        onSelectedDate(it)
+                    }
                 )
             }
         }
@@ -242,59 +247,40 @@ fun CalendarMonthItem(
 fun CalendarDay(
     modifier: Modifier = Modifier,
     date: LocalDate,
-    isToday: Boolean,
     isSelected: Boolean,
     onSelectedDate: (LocalDate) -> Unit
 ) {
-    val hasEvent = false // TODO
-    Column(
-        modifier = modifier
-            .wrapContentSize()
-            .size(30.dp)
-            .clip(shape = RoundedCornerShape(10.dp))
-//            .conditional(isToday) {
-//                background(gray07)
-//            }
-//            .conditional(isSelected) {
-//                background(gray0)
-//            }
-//            .conditional(!isToday && !isSelected) {
-//                background(gray08)
-//            }
-//            .noRippleClickable { onSelectedDate(date) }
-            .clickable {
-                onSelectedDate(date)
-            },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-
+    Box(
+        modifier = Modifier
+            .padding(4.dp),
+        contentAlignment = Alignment.Center
     ) {
-//        val textColor = if (isSelected) gray09 else gray0
-        Text(
-            modifier = Modifier,
-            textAlign = TextAlign.Center,
-            text = date.dayOfMonth.toString(),
-//            style = BoldN12,
-//            color = textColor
-        )
-        if (hasEvent) {
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .clip(shape = RoundedCornerShape(4.dp))
-//                    .conditional(isSelected) {
-//                        background(gray09)
-//                    }
-//                    .conditional(!isSelected) {
-//                        background(gray0)
-//                    }
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        onSelectedDate(date)
+                    }
+                )
+                .background(
+                    color = if (isSelected) Orange else Color.Transparent,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = date.dayOfMonth.toString(),
+                color = if (isSelected) White else Black
             )
         }
     }
 }
 
 data class HorizontalCalendarConfig(
-    val yearRange: IntRange = IntRange(1970, 2100),
+    val yearRange: IntRange = IntRange(1990, 2025),
     val locale: Locale = Locale.KOREAN
 )
 
