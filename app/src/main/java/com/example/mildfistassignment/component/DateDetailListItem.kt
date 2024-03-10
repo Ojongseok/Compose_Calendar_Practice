@@ -41,8 +41,7 @@ fun DateDetailListItem(
             )
     ) {
         Text(
-            modifier = modifier
-                .padding(4.dp),
+            modifier = modifier.padding(4.dp),
             text = time.toString().padStart(2,'0')+":00",
             fontSize = 12.sp,
             color = Gray

@@ -107,52 +107,54 @@ fun CalendarHeader(
     onClickTodayButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
-        Text(
-            modifier = modifier.align(Alignment.Center),
-            text = title,
-            fontWeight = FontWeight.Bold,
-            color = Black
-        )
-        Box(
-            modifier = modifier
-                .border(
-                    shape = RoundedCornerShape(20.dp),
-                    width = 1.dp,
+    Column {
+        Box(modifier = modifier.fillMaxWidth()) {
+            Text(
+                modifier = modifier.align(Alignment.Center),
+                text = title,
+                fontWeight = FontWeight.Bold,
+                color = Black
+            )
+            Box(
+                modifier = modifier
+                    .border(
+                        shape = RoundedCornerShape(20.dp),
+                        width = 1.dp,
+                        color = Gray
+                    )
+                    .padding(vertical = 4.dp, horizontal = 10.dp)
+                    .align(Alignment.CenterEnd)
+            ) {
+                Text(
+                    modifier = modifier
+                        .align(Alignment.Center)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = onClickTodayButton
+                        ),
+                    text = "오늘로",
+                    fontSize = 12.sp,
                     color = Gray
                 )
-                .padding(vertical = 4.dp, horizontal = 10.dp)
-                .align(Alignment.CenterEnd)
-        ) {
-            Text(
-                modifier = modifier
-                    .align(Alignment.Center)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onClickTodayButton
-                    ),
-                text = "오늘로",
-                fontSize = 12.sp,
-                color = Gray
-            )
+            }
         }
-    }
-    Spacer(modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.size(20.dp))
 
-    Row(modifier) {
-        val dayOfWeek = listOf("일","월","화","수","목","금","토")
-        dayOfWeek.forEach { day ->
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .weight(1f),
-                text = day,
-                textAlign = TextAlign.Center,
-                color = Gray,
-                fontSize = 13.sp
-            )
+        Row(modifier) {
+            val dayOfWeek = listOf("일","월","화","수","목","금","토")
+            dayOfWeek.forEach { day ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .weight(1f),
+                    text = day,
+                    textAlign = TextAlign.Center,
+                    color = Gray,
+                    fontSize = 13.sp
+                )
+            }
         }
     }
 }
@@ -174,20 +176,19 @@ fun CalendarInBottomSheet(
             page % 12 + 1,
             1
         )
-//        if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 페이징 성능 개선을 위한 조건문
-        CalendarMonthItem(
+
+        CalendarMonth(
             selectedDate = selectedDate,
             currentDate = date,
             onSelectedDate = {
                 onSelectedDate(it)
             }
         )
-//        }
     }
 }
 
 @Composable
-fun CalendarMonthItem(
+fun CalendarMonth(
     selectedDate: LocalDate,
     currentDate: LocalDate,
     onSelectedDate: (LocalDate) -> Unit,
@@ -232,8 +233,7 @@ fun CalendarDay(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
-            .padding(4.dp),
+        modifier = Modifier.padding(4.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -267,6 +267,19 @@ object CALENDAR_RANGE {
 
 @Preview(showBackground = true)
 @Composable
-fun CalendarBottomSheetPreview() {
-//    CalendarBottomSheet(onDismissRequest = {})
+fun CalendarBottomSheetHeaderPreview() {
+    CalendarHeader(
+        title = "2024년 03월",
+        onClickTodayButton = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalendarBottomSheetBodyPreview() {
+    CalendarMonth(
+        selectedDate = LocalDate.now(),
+        currentDate = LocalDate.now(),
+        onSelectedDate = {}
+    )
 }

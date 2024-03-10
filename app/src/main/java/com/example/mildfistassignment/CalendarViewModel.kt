@@ -27,5 +27,4 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-
 }

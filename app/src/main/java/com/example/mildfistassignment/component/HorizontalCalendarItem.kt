@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -73,5 +74,19 @@ fun HorizontalCalendarItem(
 @Preview(showBackground = true)
 @Composable
 fun HorizontalCalendarItemPreview() {
-//    HorizontalCalendarItem()
+    Row {
+        HorizontalCalendarItem(
+            date = LocalDate.now(),
+            selectedDate = LocalDate.now(),
+            enableSelectedMonth = 3,
+            onClickDate = {}
+        )
+        Spacer(modifier = Modifier.size(12.dp))
+        HorizontalCalendarItem(
+            date = LocalDate.now(),
+            selectedDate = LocalDate.of(2024,4,11),
+            enableSelectedMonth = 3,
+            onClickDate = {}
+        )
+    }
 }

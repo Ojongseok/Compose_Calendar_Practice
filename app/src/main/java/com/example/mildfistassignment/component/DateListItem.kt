@@ -36,13 +36,9 @@ fun DateListItem(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-          modifier = modifier
-              .weight(1f)
-        ) {
+        Box(modifier = modifier.weight(1f)) {
             Text(
-                modifier = modifier
-                    .align(Alignment.Center),
+                modifier = modifier.align(Alignment.Center),
                 text = time.toString().padStart(2,'0'),
                 fontSize = 12.sp,
                 color = Gray
@@ -58,7 +54,6 @@ fun DateListItem(
             Spacer(modifier = Modifier.weight(1f))
         }
     }
-
 }
 
 @Preview(showBackground = true)

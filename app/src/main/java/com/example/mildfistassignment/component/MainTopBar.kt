@@ -75,8 +75,7 @@ fun MainTopBar(
             )
             if (titleIcon) {
                 Icon(
-                    modifier = modifier
-                        .size(20.dp),
+                    modifier = modifier.size(20.dp),
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     tint = Gray
@@ -104,7 +103,7 @@ fun MainTopBar(
 @Composable
 fun MainTopBarPreview() {
     Column {
-        MainTopBar(title = "3", enableBackButton = false)
+        MainTopBar(title = "3", enableBackButton = false, enableExpandButton = true)
         Spacer(modifier = Modifier.size(12.dp))
         MainTopBar(title = "11", enableBackButton = true)
     }
