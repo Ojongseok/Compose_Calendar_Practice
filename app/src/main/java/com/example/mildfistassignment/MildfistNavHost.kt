@@ -19,10 +19,7 @@ fun MildfistNavHost(
         startDestination = Destination.CALENDAR.name
     ) {
         composable(route = Destination.CALENDAR.name) {
-            val parentEntry = remember(it) {
-                navController.getBackStackEntry(Destination.CALENDAR.name)
-            }
-            CalendarScreen(navController = navController, viewModel = hiltViewModel(parentEntry))
+            CalendarScreen(navController = navController)
         }
 
         composable(route = Destination.CALENDAR_DETAIL.name) {

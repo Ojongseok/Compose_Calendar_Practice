@@ -28,13 +28,13 @@ fun HorizontalCalendar(
     modifier: Modifier = Modifier
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()    // 선택된 날짜
-    val totalWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.month.maxLength())   // 한 달이 몇 주인지
-    val weekList = List<MutableList<LocalDate>>(totalWeeks) { mutableListOf() }    // 1주, 2주, 3주, 4주, 5주를 보관하는 리스트
+    val totalWeeks = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, selectedDate.month.maxLength())   // 선택된 달이 몇 주인지
+    val weekList = List<MutableList<LocalDate>>(totalWeeks) { mutableListOf() }    // 1주, 2주, 3주, 4주, 5주, 6주를 보관하는 리스트
 
-    // 주차를 인덱스에 따라 weekList에 저장
+    // 1일에서 마지막 일까지 n-1주차에 맞게 weekList에 저장
     for (i in 1..selectedDate.month.maxLength()) {
-        val dayOfWeek = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, i)
-        weekList[dayOfWeek-1].add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i))
+        val week = getWeeksOfMonth(selectedDate.year, selectedDate.monthValue, i)
+        weekList[week-1].add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i))
     }
 
     // 첫째주, 마지막주 비어있는 칸 채우기

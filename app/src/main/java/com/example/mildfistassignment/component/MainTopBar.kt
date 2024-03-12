@@ -91,7 +91,7 @@ fun MainTopBar(
                         indication = null,
                         onClick = onClickExpandButton
                     ),
-                text = "주간 일정 잡기",
+                text = "주간 일정 접기",
                 color = Gray,
                 fontSize = 12.sp
             )

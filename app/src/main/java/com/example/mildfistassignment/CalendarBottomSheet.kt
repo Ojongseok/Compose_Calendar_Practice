@@ -57,17 +57,17 @@ fun CalendarBottomSheet(
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()
 
-    val initialPage = (selectedDate.year - CALENDAR_RANGE.firstYear) * 12 + selectedDate.monthValue - 1
-    val pageCount = (CALENDAR_RANGE.lastYear - CALENDAR_RANGE.firstYear) * 12
+    val initialPage = (selectedDate.year - CALENDAR_RANGE.startYear) * 12 + selectedDate.monthValue - 1
+    val pageCount = (CALENDAR_RANGE.lastYear - CALENDAR_RANGE.startYear) * 12
 
     val pagerState = rememberPagerState(pageCount = {pageCount}, initialPage = initialPage)
 
-    var currentMonth by remember { mutableStateOf(selectedDate) }
+    var currentDate by remember { mutableStateOf(selectedDate) }
     var currentPage by remember { mutableIntStateOf(initialPage) }
 
     LaunchedEffect(key1 = pagerState.currentPage) {
-        val addMonth = (pagerState.currentPage - currentPage).toLong()
-        currentMonth = currentMonth.plusMonths(addMonth)
+        val swipe = (pagerState.currentPage - currentPage).toLong()
+        currentDate = currentDate.plusMonths(swipe)
         currentPage = pagerState.currentPage
     }
 
@@ -83,7 +83,7 @@ fun CalendarBottomSheet(
                 .padding(vertical = 24.dp, horizontal = 12.dp)
         ) {
             CalendarHeader(
-                title = toCalendarTitle(currentMonth.year, currentMonth.monthValue),
+                title = toCalendarTitle(currentDate.year, currentDate.monthValue),
                 onClickTodayButton = {
                     onClickedTodayButton()
                     onDismissRequest()
@@ -167,12 +167,11 @@ fun CalendarInBottomSheet(
     onSelectedDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     HorizontalPager(
         state = pagerState
     ) { page ->
         val date = LocalDate.of(
-            CALENDAR_RANGE.firstYear + page / 12,
+            CALENDAR_RANGE.startYear + page / 12,
             page % 12 + 1,
             1
         )
@@ -194,9 +193,9 @@ fun CalendarMonth(
     onSelectedDate: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val lastDay by remember { mutableIntStateOf(currentDate.lengthOfMonth()) }
-    val firstDayOfWeek by remember { mutableIntStateOf(currentDate.dayOfWeek.value) }
-    val days by remember { mutableStateOf(IntRange(1, lastDay).toList()) }
+    val lastDay by remember { mutableIntStateOf(currentDate.lengthOfMonth()) }    // 해당 달의 마지막 날
+    val firstDayOfWeek by remember { mutableIntStateOf(currentDate.dayOfWeek.value) }  // 1일
+    val days by remember { mutableStateOf(IntRange(1, lastDay).toList()) }    // 해당 달의 총 일수 리스트
 
     Column(modifier = modifier.fillMaxWidth()) {
         LazyVerticalGrid(
@@ -204,7 +203,8 @@ fun CalendarMonth(
             columns = GridCells.Fixed(7),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            for (i in 1 until firstDayOfWeek + 1) { // 처음 날짜가 시작하는 요일 전까지 빈 박스 생성, 일요일부터 시작!
+            // 1일이 시작하는 요일 전까지 공백 생성, 일요일부터 시작할 수 있도록 +1
+            for (i in 1 until firstDayOfWeek +1) {
                 item {
                     Box(modifier = Modifier.size(32.dp))
                 }
@@ -261,7 +261,7 @@ fun CalendarDay(
 }
 
 object CALENDAR_RANGE {
-    const val firstYear = 2000
+    const val startYear = 2000
     const val lastYear = 2030
 }
 
